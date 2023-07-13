@@ -1,10 +1,10 @@
 const axios = require('axios');
 const core = require('@actions/core');
-const rr = require('../common/rr');
+const http = require('../common/http');
 
 async function patchRun(run_id, status, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await rr.patch(`/v1/runs/${run_id}`, {
+    const response = await axios.patch(`https://research-replicator.usescholar.org/v1/runs/${run_id}`, {
       status: status,
     }, {
       auth: {
@@ -16,7 +16,7 @@ async function patchRun(run_id, status, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRE
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.error('Error patching run');
+    http.handleAxiosError(error);
   }
 }
 

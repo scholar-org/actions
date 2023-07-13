@@ -1,48 +1,34 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 7565:
+/***/ 4709:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
 __nccwpck_require__.r(__webpack_exports__);
 /* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */   "handleAxiosError": () => (/* binding */ handleAxiosError)
 /* harmony export */ });
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7039);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
-// wrapper around axios so that we can make logging of errors easier
-
-
-const http = axios__WEBPACK_IMPORTED_MODULE_0___default().create({
-  baseURL: 'https://research-replicator.usescholar.org',
-});
-
-http.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.log(error.response.data);
-      console.log(error.response.status);
-      console.log(error.response.headers);
-    } else if (error.request) {
-      // The request was made but no response was received
-      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-      // http.ClientRequest in node.js
-      console.log(error.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.log('Error', error.message);
-    }
-    console.log(error.config);
-
-    throw error;
+const handleAxiosError = (error) => {
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    console.log(error.response.data);
+    console.log(error.response.status);
+    console.log(error.response.headers);
+  } else if (error.request) {
+    // The request was made but no response was received
+    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+    // http.ClientRequest in node.js
+    console.log(error.request);
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    console.log('Error', error.message);
   }
-);
+  console.log(error.config);
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (http);
+  throw error;
+};
 
 
 /***/ }),
@@ -11937,14 +11923,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 7039:
-/***/ ((module) => {
-
-module.exports = eval("require")("axios");
-
-
-/***/ }),
-
 /***/ 6542:
 /***/ ((module) => {
 
@@ -16375,18 +16353,6 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__nccwpck_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__nccwpck_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -16429,11 +16395,11 @@ const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 const axios = __nccwpck_require__(2084);
 const crypto = __nccwpck_require__(6113);
-const rr = __nccwpck_require__(7565);
+const http = __nccwpck_require__(4709);
 
 async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await rr.post('/v1/results', {
+    const response = await axios.post('https://research-replicator.usescholar.org/v1/results', {
       run_id: runId,
       data: {
         files: files
@@ -16448,7 +16414,7 @@ async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACC
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.log('Error posting results metadata');
+    http.handleAxiosError(error);
   }
 }
 
@@ -16458,7 +16424,7 @@ async function uploadResultFile(runId, file, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_
     formData.append('run_id', runId);
     formData.append('filename', file.filename);
     formData.append('file', fs.createReadStream(file.filepath));
-    const response = await rr.put('/v1/results/data', formData, {
+    const response = await axios.put('https://research-replicator.usescholar.org/v1/results/data', formData, {
       auth: {
         username: SCHOLAR_ACCESS_KEY,
         password: SCHOLAR_ACCESS_SECRET
@@ -16467,13 +16433,13 @@ async function uploadResultFile(runId, file, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_
 
     console.log(file.filename, response.status);
   } catch (error) {
-    console.log('Error uploading result file');
+    http.handleAxiosError(error);
   }
 }
 
 async function patchRunToCompleted(runId, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await rr.patch(`/v1/runs/${runId}`, {
+    const response = await axios.patch(`https://research-replicator.usescholar.org/v1/runs/${runId}`, {
       status: 'COMPLETED'
     }, {
       auth: {
@@ -16485,7 +16451,7 @@ async function patchRunToCompleted(runId, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SEC
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.log('Error patching run');
+    http.handleAxiosError(error);
   }
 }
 
