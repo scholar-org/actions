@@ -1,0 +1,18 @@
+name: 'Set Run Status'
+description: 'Update the status of a run.'
+inputs:
+  run_id:
+    description: 'Run ID if the run has already been initialized'
+    required: false
+  status:
+    description: 'Status to set'
+    required: true
+  SCHOLAR_ACCESS_KEY:
+    description: 'Scholar Access Key'
+    required: true
+  SCHOLAR_ACCESS_SECRET:
+    description: 'Scholar Access Secret'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

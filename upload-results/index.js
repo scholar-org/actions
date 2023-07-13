@@ -4,10 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const crypto = require('crypto');
+const rr = require('../common/rr');
 
 async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await axios.post('https://research-replicator.usescholar.org/v1/results', {
+    const response = await rr.post('/v1/results', {
       run_id: runId,
       data: {
         files: files
@@ -22,7 +23,7 @@ async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACC
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.log('Error posting results metadata');
   }
 }
 
@@ -32,7 +33,7 @@ async function uploadResultFile(runId, file, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_
     formData.append('run_id', runId);
     formData.append('filename', file.filename);
     formData.append('file', fs.createReadStream(file.filepath));
-    const response = await axios.put('https://research-replicator.usescholar.org/v1/results/data', formData, {
+    const response = await rr.put('/v1/results/data', formData, {
       auth: {
         username: SCHOLAR_ACCESS_KEY,
         password: SCHOLAR_ACCESS_SECRET
@@ -41,13 +42,13 @@ async function uploadResultFile(runId, file, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_
 
     console.log(file.filename, response.status);
   } catch (error) {
-    console.error(error);
+    console.log('Error uploading result file');
   }
 }
 
 async function patchRunToCompleted(runId, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await axios.patch(`https://research-replicator.usescholar.org/v1/runs/${runId}`, {
+    const response = await rr.patch(`/v1/runs/${runId}`, {
       status: 'COMPLETED'
     }, {
       auth: {
@@ -59,7 +60,7 @@ async function patchRunToCompleted(runId, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SEC
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.log('Error patching run');
   }
 }
 

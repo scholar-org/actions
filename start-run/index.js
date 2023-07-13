@@ -1,12 +1,13 @@
 const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
+const rr = require('../common/rr');
 
 async function postRun(ro_id, user_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await axios.post('https://research-replicator.usescholar.org/v1/runs', {
+    const response = await rr.post('/v1/runs', {
       ro_id: ro_id,
-      user_id: user_id,
+      user_id: user_id ? user_id : undefined,
       status: 'RUNNING',
       data: {
         repo_commit_hash: repo_commit_hash,
@@ -21,17 +22,17 @@ async function postRun(ro_id, user_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCH
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error('Error creating run');
   }
 }
 
 async function patchRun(run_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await axios.patch(`https://research-replicator.usescholar.org/v1/runs/${run_id}`, {
+    const response = await rr.patch(`/v1/runs/${run_id}`, {
       status: 'RUNNING',
-      data: {
+      data: repo_commit_hash ? {
         repo_commit_hash: repo_commit_hash,
-      }
+      } : undefined,
     }, {
       auth: {
         username: SCHOLAR_ACCESS_KEY,
@@ -42,7 +43,7 @@ async function patchRun(run_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCHOLAR_AC
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error('Error patching run');
   }
 }
 

@@ -1,6 +1,52 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 7565:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7039);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+// wrapper around axios so that we can make logging of errors easier
+
+
+const http = axios__WEBPACK_IMPORTED_MODULE_0___default().create({
+  baseURL: 'https://research-replicator.usescholar.org',
+});
+
+http.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.log(error.response.data);
+      console.log(error.response.status);
+      console.log(error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+      // http.ClientRequest in node.js
+      console.log(error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log('Error', error.message);
+    }
+    console.log(error.config);
+
+    throw error;
+  }
+);
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (http);
+
+
+/***/ }),
+
 /***/ 8122:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -11891,6 +11937,14 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 7039:
+/***/ ((module) => {
+
+module.exports = eval("require")("axios");
+
+
+/***/ }),
+
 /***/ 6542:
 /***/ ((module) => {
 
@@ -16321,6 +16375,46 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
@@ -16335,10 +16429,11 @@ const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 const axios = __nccwpck_require__(2084);
 const crypto = __nccwpck_require__(6113);
+const rr = __nccwpck_require__(7565);
 
 async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await axios.post('https://research-replicator.usescholar.org/v1/results', {
+    const response = await rr.post('/v1/results', {
       run_id: runId,
       data: {
         files: files
@@ -16353,7 +16448,7 @@ async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACC
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.log('Error posting results metadata');
   }
 }
 
@@ -16363,7 +16458,7 @@ async function uploadResultFile(runId, file, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_
     formData.append('run_id', runId);
     formData.append('filename', file.filename);
     formData.append('file', fs.createReadStream(file.filepath));
-    const response = await axios.put('https://research-replicator.usescholar.org/v1/results/data', formData, {
+    const response = await rr.put('/v1/results/data', formData, {
       auth: {
         username: SCHOLAR_ACCESS_KEY,
         password: SCHOLAR_ACCESS_SECRET
@@ -16372,13 +16467,13 @@ async function uploadResultFile(runId, file, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_
 
     console.log(file.filename, response.status);
   } catch (error) {
-    console.error(error);
+    console.log('Error uploading result file');
   }
 }
 
 async function patchRunToCompleted(runId, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
-    const response = await axios.patch(`https://research-replicator.usescholar.org/v1/runs/${runId}`, {
+    const response = await rr.patch(`/v1/runs/${runId}`, {
       status: 'COMPLETED'
     }, {
       auth: {
@@ -16390,7 +16485,7 @@ async function patchRunToCompleted(runId, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SEC
     console.log(response.status);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.log('Error patching run');
   }
 }
 
