@@ -1,0 +1,18 @@
+name: 'Upload Results'
+description: 'Uploads result metadata and files for the replication'
+inputs:
+  SCHOLAR_ACCESS_KEY:
+    required: true
+  SCHOLAR_ACCESS_SECRET:
+    required: true
+  run_id:
+    required: true
+  raw_results_path:
+    required: true
+  summary_results_path:
+    required: true
+  figures_path:
+    required: true
+runs:
+  using: 'node12'
+  main: 'index.js'

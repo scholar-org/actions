@@ -1,0 +1,24 @@
+name: 'Start Run'
+description: 'Start a replication run and save the run ID for other actions'
+inputs:
+  ro_id:
+    description: 'Research Object ID'
+    required: true
+  user_id:
+    description: 'User ID'
+    required: false
+  run_id:
+    description: 'Run ID if the run has already been initialized'
+    required: false
+  SCHOLAR_ACCESS_KEY:
+    description: 'Scholar Access Key'
+    required: true
+  SCHOLAR_ACCESS_SECRET:
+    description: 'Scholar Access Secret'
+    required: true
+outputs:
+  run_id:
+    description: 'Run ID for the replication'
+runs:
+  using: 'node12'
+  main: 'index.js'
