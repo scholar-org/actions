@@ -1,3 +1,4 @@
 # all node_modules, even in subdirectories
 node_modules
 **/node_modules
+**/test.sh

@@ -21,7 +21,7 @@ async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACC
       }
     });
 
-    console.log(response.status);
+    console.log('Posted results metadata');
     return response.data;
   } catch (error) {
     http.handleAxiosError(error);
@@ -41,8 +41,9 @@ async function uploadResultFile(runId, file, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_
       }
     });
 
-    console.log(file.filename, response.status);
+    console.log('Uploaded file:', file.filename);
   } catch (error) {
+    console.log('Error uploading file:', file.filename)
     http.handleAxiosError(error);
   }
 }
@@ -58,7 +59,7 @@ async function patchRunToCompleted(runId, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SEC
       }
     });
 
-    console.log(response.status);
+    console.log('Marked run as completed');
     return response.data;
   } catch (error) {
     http.handleAxiosError(error);
@@ -83,7 +84,22 @@ function getFileData(filePath, type) {
   };
 }
 
+function getDisplayableFileType(type) {
+  switch (type) {
+    case 'RAW_DATA':
+      return 'raw data';
+    case 'SUMMARY_DATA':
+      return 'summary data';
+    case 'FIGURE_SPEC':
+      return 'figure spec';
+    default:
+      return 'unknown';
+  }
+}
+
 function getFiles(dirPath, type, allowedExtensions = ['csv', 'json']) {
+  console.log('\tReading', getDisplayableFileType(type), 'files from', dirPath);
+
   let files = [];
   const items = fs.readdirSync(dirPath);
 
@@ -95,6 +111,8 @@ function getFiles(dirPath, type, allowedExtensions = ['csv', 'json']) {
       files.push(getFileData(fullPath, type));
     }
   }
+
+  console.log('\t\tFound', files.length, getDisplayableFileType(type), 'files');
 
   return files;
 }
@@ -108,6 +126,7 @@ async function run() {
     const summaryResultsPath = core.getInput('summary_results_path');
     const figuresPath = core.getInput('figures_path');
 
+    console.log('Reading files...');
     const files = [
       ...getFiles(rawResultsPath, 'RAW_DATA', ['csv']),
       ...getFiles(summaryResultsPath, 'SUMMARY_DATA', ['csv']),
@@ -119,6 +138,8 @@ async function run() {
     for (const file of files) {
       await uploadResultFile(runId, file, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
     }
+
+    console.log('Done uploading files')
 
     await patchRunToCompleted(runId, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
   } catch (error) {
