@@ -16483,7 +16483,6 @@ function getFiles(dirPath, type, allowedExtensions = ['csv', 'json']) {
 
     if (stats.isFile() && allowedExtensions.includes(path.extname(fullPath).slice(1))) {
       files.push(getFileData(fullPath, type));
-      processedFiles.add(fullPath);
     }
   }
 
