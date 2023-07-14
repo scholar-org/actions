@@ -28,7 +28,7 @@ async function setRunStatus() {
     const SCHOLAR_ACCESS_SECRET = core.getInput('SCHOLAR_ACCESS_SECRET');
 
     // Patch the run status
-    await patchRun(existing_run_id, status, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
+    await patchRun(run_id, status, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
     return;
   } catch (error) {
     core.setFailed(error.message);
