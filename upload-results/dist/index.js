@@ -16396,6 +16396,7 @@ const path = __nccwpck_require__(1017);
 const axios = __nccwpck_require__(2084);
 const crypto = __nccwpck_require__(6113);
 const http = __nccwpck_require__(4709);
+const FormData = __nccwpck_require__(9948);
 
 async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {

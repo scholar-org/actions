@@ -5,6 +5,7 @@ const path = require('path');
 const axios = require('axios');
 const crypto = require('crypto');
 const http = require('../common/http');
+const FormData = require('form-data');
 
 async function postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
   try {
