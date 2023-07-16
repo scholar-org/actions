@@ -3,7 +3,17 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const http = require('../common/http');
 
-async function postRun(ro_id, user_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
+async function postRun({
+  ro_id,
+  user_id,
+  repo_commit_hash,
+  repo_url,
+  github_workflow_id,
+  github_run_id,
+}, {
+  SCHOLAR_ACCESS_KEY,
+  SCHOLAR_ACCESS_SECRET,
+}) {
   try {
     const response = await axios.post('https://research-replicator.usescholar.org/v1/runs', {
       ro_id: ro_id,
@@ -11,6 +21,9 @@ async function postRun(ro_id, user_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCH
       status: 'RUNNING',
       data: {
         repo_commit_hash: repo_commit_hash,
+        repo_url: repo_url,
+        github_workflow_id: github_workflow_id,
+        github_run_id: github_run_id,
       }
     }, {
       auth: {
@@ -26,13 +39,25 @@ async function postRun(ro_id, user_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCH
   }
 }
 
-async function patchRun(run_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET) {
+async function patchRun({
+  run_id,
+  repo_commit_hash,
+  repo_url,
+  github_workflow_id,
+  github_run_id,
+}, {
+  SCHOLAR_ACCESS_KEY,
+  SCHOLAR_ACCESS_SECRET,
+}) {
   try {
     const response = await axios.patch(`https://research-replicator.usescholar.org/v1/runs/${run_id}`, {
       status: 'RUNNING',
-      data: repo_commit_hash ? {
+      data: {
         repo_commit_hash: repo_commit_hash,
-      } : undefined,
+        repo_url: repo_url,
+        github_workflow_id: github_workflow_id,
+        github_run_id: github_run_id,
+      },
     }, {
       auth: {
         username: SCHOLAR_ACCESS_KEY,
@@ -55,18 +80,43 @@ async function startRun() {
     const SCHOLAR_ACCESS_SECRET = core.getInput('SCHOLAR_ACCESS_SECRET');
     const repo_commit_hash = github.context.sha;
 
+    // get details on the workflow/run/repo state
+    const github_workflow_id = github.context.workflow_id;
+    const github_run_id = github.context.run_id;
+
+    // get the repo URL
+    const repo_url = github.context.payload.repository.html_url;
+
     const existing_run_id = core.getInput('run_id');
 
     if (existing_run_id) {
       // Patch the run to RUNNING
-      await patchRun(existing_run_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
+      await patchRun({
+        run_id: existing_run_id,
+        repo_commit_hash: repo_commit_hash,
+        repo_url: repo_url,
+        github_workflow_id: github_workflow_id,
+        github_run_id: github_run_id,
+      }, {
+        SCHOLAR_ACCESS_KEY,
+        SCHOLAR_ACCESS_SECRET,
+      });
 
       core.setOutput('run_id', existing_run_id);
       return;
     }
 
     // Create a new run
-    const data = await postRun(ro_id, user_id, repo_commit_hash, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
+    const data = await postRun({
+      ro_id: ro_id,
+      user_id: user_id,
+      repo_commit_hash: repo_commit_hash,
+      github_workflow_id: github_workflow_id,
+      github_run_id: github_run_id,
+    }, {
+      SCHOLAR_ACCESS_KEY,
+      SCHOLAR_ACCESS_SECRET,
+    });
     const run_id = data.id;
     core.setOutput('run_id', run_id);
     return;
