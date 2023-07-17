@@ -32,7 +32,13 @@ async function postRun({
       }
     });
 
-    console.log(response.status);
+    console.log('Created a new run.');
+    console.log(`\tRun ID: ${response.data.id}`);
+    console.log(`\tMetadata:`);
+    console.log(`\t\tRepo URL: ${repo_url}`);
+    console.log(`\t\tRepo Commit Hash: ${repo_commit_hash}`);
+    console.log(`\t\tGitHub Workflow ID: ${github_workflow_id}`);
+    console.log(`\t\tGitHub Run ID: ${github_run_id}`);
     return response.data;
   } catch (error) {
     http.handleAxiosError(error);
@@ -65,7 +71,13 @@ async function patchRun({
       }
     });
 
-    console.log(response.status);
+    console.log('Updated an existing run.');
+    console.log(`\tRun ID: ${response.data.id}`);
+    console.log(`\tMetadata:`);
+    console.log(`\t\tRepo URL: ${repo_url}`);
+    console.log(`\t\tRepo Commit Hash: ${repo_commit_hash}`);
+    console.log(`\t\tGitHub Workflow ID: ${github_workflow_id}`);
+    console.log(`\t\tGitHub Run ID: ${github_run_id}`);
     return response.data;
   } catch (error) {
     http.handleAxiosError(error);
@@ -91,6 +103,9 @@ async function startRun() {
 
     if (existing_run_id) {
       // Patch the run to RUNNING
+
+      console.log('Run ID already exists, setting status and metadata.');
+
       await patchRun({
         run_id: existing_run_id,
         repo_commit_hash: repo_commit_hash,
@@ -105,6 +120,8 @@ async function startRun() {
       core.setOutput('run_id', existing_run_id);
       return;
     }
+
+    console.log('Creating a new run.');
 
     // Create a new run
     const data = await postRun({

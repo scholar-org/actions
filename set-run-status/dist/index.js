@@ -9468,7 +9468,7 @@ async function patchRun(run_id, status, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRE
       }
     });
 
-    console.log(response.status);
+    console.log(`Set run status to ${status}.for Run ID: ${run_id}`);
     return response.data;
   } catch (error) {
     http.handleAxiosError(error);
@@ -9483,7 +9483,7 @@ async function setRunStatus() {
     const SCHOLAR_ACCESS_SECRET = core.getInput('SCHOLAR_ACCESS_SECRET');
 
     // Patch the run status
-    await patchRun(existing_run_id, status, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
+    await patchRun(run_id, status, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
     return;
   } catch (error) {
     core.setFailed(error.message);

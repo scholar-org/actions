@@ -13,7 +13,7 @@ async function patchRun(run_id, status, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRE
       }
     });
 
-    console.log(response.status);
+    console.log(`Set run status to ${status}.for Run ID: ${run_id}`);
     return response.data;
   } catch (error) {
     http.handleAxiosError(error);
