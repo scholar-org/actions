@@ -16484,10 +16484,7 @@ async function startRun() {
     const repo_commit_hash = github.context.sha;
 
     // get details on the workflow/run/repo state
-    const github_workflow_id = github.context.workflow_id;
-    const github_run_id = github.context.run_id;
-
-    // get the repo URL
+    const github_run_id = github.context.runId;
     const repo_url = github.context.payload.repository.html_url;
 
     const existing_run_id = core.getInput('run_id');
@@ -16495,13 +16492,12 @@ async function startRun() {
     if (existing_run_id) {
       // Patch the run to RUNNING
 
-      console.log('Run ID already exists, setting status and metadata.');
+      console.log('Run ID already exists, setting status and metadata...');
 
       await patchRun({
         run_id: existing_run_id,
         repo_commit_hash: repo_commit_hash,
         repo_url: repo_url,
-        github_workflow_id: github_workflow_id,
         github_run_id: github_run_id,
       }, {
         SCHOLAR_ACCESS_KEY,
@@ -16512,14 +16508,12 @@ async function startRun() {
       return;
     }
 
-    console.log('Creating a new run.');
-
     // Create a new run
     const data = await postRun({
       ro_id: ro_id,
       user_id: user_id,
+      repo_url: repo_url,
       repo_commit_hash: repo_commit_hash,
-      github_workflow_id: github_workflow_id,
       github_run_id: github_run_id,
     }, {
       SCHOLAR_ACCESS_KEY,
