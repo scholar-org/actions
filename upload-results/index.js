@@ -131,6 +131,7 @@ async function run() {
       ...getFiles(rawResultsPath, 'RAW_DATA', ['csv']),
       ...getFiles(summaryResultsPath, 'SUMMARY_DATA', ['csv']),
       ...getFiles(figuresPath, 'FIGURE_SPEC', ['json']),
+      ...getFiles(figuresPath, 'FIGURE_IMAGE', ['png', 'jpg', 'jpeg', 'svg'])
     ];
 
     await postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);
