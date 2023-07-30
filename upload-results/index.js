@@ -92,6 +92,8 @@ function getDisplayableFileType(type) {
       return 'summary data';
     case 'FIGURE_SPEC':
       return 'figure spec';
+    case 'FIGURE_IMAGE':
+      return 'figure image';
     default:
       return 'unknown';
   }
