@@ -10,6 +10,7 @@ async function postRun({
   repo_url,
   github_workflow_id,
   github_run_id,
+  scholar_workflow_id,
 }, {
   SCHOLAR_ACCESS_KEY,
   SCHOLAR_ACCESS_SECRET,
@@ -39,6 +40,7 @@ async function postRun({
     console.log(`\t\tRepo Commit Hash: ${repo_commit_hash}`);
     console.log(`\t\tGitHub Workflow ID: ${github_workflow_id}`);
     console.log(`\t\tGitHub Run ID: ${github_run_id}`);
+    console.log(`\t\tScholar Workflow ID: ${scholar_workflow_id}`);
     return response.data;
   } catch (error) {
     http.handleAxiosError(error);
@@ -51,6 +53,7 @@ async function patchRun({
   repo_url,
   github_workflow_id,
   github_run_id,
+  scholar_workflow_id,
 }, {
   SCHOLAR_ACCESS_KEY,
   SCHOLAR_ACCESS_SECRET,
@@ -78,6 +81,7 @@ async function patchRun({
     console.log(`\t\tRepo Commit Hash: ${repo_commit_hash}`);
     console.log(`\t\tGitHub Workflow ID: ${github_workflow_id}`);
     console.log(`\t\tGitHub Run ID: ${github_run_id}`);
+    console.log(`\t\tScholar Workflow ID: ${scholar_workflow_id}`);
     return response.data;
   } catch (error) {
     http.handleAxiosError(error);
@@ -88,6 +92,8 @@ async function startRun() {
   try {
     const ro_id = core.getInput('ro_id');
     const user_id = core.getInput('user_id');
+    const scholar_workflow_id = core.getInput('scholar_workflow_id');
+  
     const SCHOLAR_ACCESS_KEY = core.getInput('SCHOLAR_ACCESS_KEY');
     const SCHOLAR_ACCESS_SECRET = core.getInput('SCHOLAR_ACCESS_SECRET');
     const repo_commit_hash = github.context.sha;
@@ -108,6 +114,7 @@ async function startRun() {
         repo_commit_hash: repo_commit_hash,
         repo_url: repo_url,
         github_run_id: github_run_id,
+        scholar_workflow_id: scholar_workflow_id,
       }, {
         SCHOLAR_ACCESS_KEY,
         SCHOLAR_ACCESS_SECRET,
@@ -124,6 +131,7 @@ async function startRun() {
       repo_url: repo_url,
       repo_commit_hash: repo_commit_hash,
       github_run_id: github_run_id,
+      scholar_workflow_id: scholar_workflow_id,
     }, {
       SCHOLAR_ACCESS_KEY,
       SCHOLAR_ACCESS_SECRET,
