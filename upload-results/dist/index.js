@@ -16491,6 +16491,11 @@ function getDisplayableFileType(type) {
 }
 
 function getFiles(dirPath, type, allowedExtensions = ['csv', 'json']) {
+  if (!fs.existsSync(dirPath)) {
+    console.error('Error: Directory', dirPath, 'does not exist.');
+    return [];  // Return an empty list
+  }
+  
   console.log('\tReading', getDisplayableFileType(type), 'files from', dirPath);
 
   let files = [];
@@ -16522,7 +16527,7 @@ async function run() {
     console.log('Reading files...');
     const files = [
       ...getFiles(rawResultsPath, 'RAW_DATA', ['csv']),
-      ...getFiles(summaryResultsPath, 'SUMMARY_DATA', ['csv']),
+      ...getFiles(summaryResultsPath, 'SUMMARY_DATA', ['csv', 'md']),
       ...getFiles(figuresPath, 'FIGURE_SPEC', ['json']),
       ...getFiles(figuresPath, 'FIGURE_IMAGE', ['png', 'jpg', 'jpeg', 'svg'])
     ];
