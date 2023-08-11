@@ -16466,7 +16466,19 @@ function computeSha256Checksum(file) {
 
 function getFileData(filePath, type) {
   const stats = fs.statSync(filePath);
+  let file_id = undefined;
+
+  if (type === 'FIGURE_SPEC') {
+    try {
+      const data = JSON.parse(fs.readFileSync(filePath));
+      file_id = data.id;
+    } catch (error) {
+      console.error('ERROR: Invalid JSON for figure spec file:', filePath);
+    }
+  }
+
   return {
+    file_id: file_id,
     filename: path.basename(filePath),
     filepath: filePath,
     size_bytes: stats.size,
@@ -16515,21 +16527,81 @@ function getFiles(dirPath, type, allowedExtensions = ['csv', 'json']) {
   return files;
 }
 
+/**
+ * Verify that the figure specs are formatted correctly. Checks:
+ * - Is valid JSON
+ * - Has the required fields: id, data, data.filename, figure, figure.title, figure.type
+ * - The data.filename field matches a file in the summary data directory OR figure image directory
+ * @returns Returns false if job failed. Returns an array of figure spec files if job succeeded.
+ */
+function validateFigureSpecFiles(files, summaryDataFiles) {
+  let failJob = false;
+  const parsed = files.filter((f) => {
+    let fileData = undefined;
+    try {
+      fileData = fs.readFileSync(f.filepath);
+    } catch (error) {
+      console.error('ERROR: Could not read figure spec file:', f.filename, ', error', error.message);
+      failJob = true;
+      return false;
+    }
+
+    try {
+      const data = JSON.parse(fileData);
+
+      if (!data.id || !data.data || !data.data.filename || !data.figure || !data.figure.title || !data.figure.type) {
+        console.error('ERROR: Missing fields for figure spec file:', f.filename);
+        failJob = true;
+        return false;
+      }
+  
+      const summaryDataFilename = data.data.filename;
+      const matchingSummaryDataFile = summaryDataFiles.find(f => f.filename === summaryDataFilename);
+      if (!matchingSummaryDataFile) {
+        // we just assume that they didn't reproduce results for this one particular figure
+        console.warn('WARNING: Could not find matching summary data file for figure spec. Skipping figure file:', f.filename);
+        return false;
+      }
+  
+      return true;
+    } catch (error) {
+      console.error('ERROR: Invalid JSON for figure spec file:', f.filename);
+      failJob = true;
+      return false;
+    }
+  });
+
+  return {
+    failJob: failJob,
+    parsed: parsed
+  }
+}
+
 async function run() {
   try {
     const SCHOLAR_ACCESS_KEY = core.getInput('SCHOLAR_ACCESS_KEY');
     const SCHOLAR_ACCESS_SECRET = core.getInput('SCHOLAR_ACCESS_SECRET');
     const runId = core.getInput('run_id');
-    const rawResultsPath = core.getInput('raw_results_path');
-    const summaryResultsPath = core.getInput('summary_results_path');
+    const artifactsPath = core.getInput('artifacts_path');
+    const summaryResultsPath = core.getInput('results_path');
     const figuresPath = core.getInput('figures_path');
 
     console.log('Reading files...');
+    const summaryResultFiles = getFiles(summaryResultsPath, 'SUMMARY_DATA', ['csv', 'md']);
+    const figureImageFiles = getFiles(figuresPath, 'FIGURE_IMAGE', ['png', 'jpg', 'jpeg', 'svg']);
+
+    const rawFigureSpecFiles = getFiles(figuresPath, 'FIGURE_SPEC', ['json']);
+    const { failJob, parsed: parsedFigureSpecFiles } = validateFigureSpecFiles(rawFigureSpecFiles, [...summaryResultFiles, ...figureImageFiles]);
+    if (failJob) {
+      core.setFailed('Job failed due to invalid figure spec files');
+      return;
+    }
+
     const files = [
-      ...getFiles(rawResultsPath, 'RAW_DATA', ['csv']),
-      ...getFiles(summaryResultsPath, 'SUMMARY_DATA', ['csv', 'md']),
-      ...getFiles(figuresPath, 'FIGURE_SPEC', ['json']),
-      ...getFiles(figuresPath, 'FIGURE_IMAGE', ['png', 'jpg', 'jpeg', 'svg'])
+      ...getFiles(artifactsPath, 'RAW_DATA', ['csv']),
+      ...summaryResultFiles,
+      ...parsedFigureSpecFiles,
+      ...figureImageFiles,
     ];
 
     await postResultsMetadata(runId, files, SCHOLAR_ACCESS_KEY, SCHOLAR_ACCESS_SECRET);

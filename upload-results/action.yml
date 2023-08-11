@@ -7,9 +7,9 @@ inputs:
     required: true
   run_id:
     required: true
-  raw_results_path:
+  artifacts_path:
     required: true
-  summary_results_path:
+  results_path:
     required: true
   figures_path:
     required: true
